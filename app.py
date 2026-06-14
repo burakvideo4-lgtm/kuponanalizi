@@ -13,10 +13,7 @@ def get_live_matches():
         bugun = datetime.now().strftime('%Y-%m-%d')
         url = f"https://v3.football.api-sports.io/fixtures?date={bugun}"
         response = requests.get(url, headers=HEADERS, timeout=10)
-        data = response.json().get("response", [])
-        
-        # Sadece ilk 10 maçı alalım ki liste çok uzamasın
-        return data[:10]
+        return response.json().get("response", [])[:12]
     except:
         return []
 
@@ -29,44 +26,56 @@ def index():
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <style>
-            body { background: #030712; color: #fff; font-family: sans-serif; padding: 15px; }
-            .tabs { display: flex; gap: 5px; margin-bottom: 20px; border-bottom: 1px solid #374151; padding-bottom: 10px; }
-            button { padding: 10px; background: #1f2937; border: none; color: white; border-radius: 5px; cursor: pointer; flex: 1; }
-            .active-btn { background: #0ea5e9 !important; }
-            .tab-pane { display: none; }
-            .active-pane { display: block; }
-            .card { background: #111827; padding: 15px; border-radius: 8px; margin-bottom: 10px; border: 1px solid #374151; }
+            :root { --bg: #0f172a; --card: #1e293b; --accent: #38bdf8; --text: #f1f5f9; }
+            body { background: var(--bg); color: var(--text); font-family: 'Inter', system-ui, sans-serif; margin: 0; padding: 20px; }
+            
+            .nav-tabs { display: flex; gap: 10px; margin-bottom: 25px; background: var(--card); padding: 5px; border-radius: 12px; }
+            .tab-btn { flex: 1; padding: 12px; border: none; background: transparent; color: #94a3b8; font-weight: 600; border-radius: 8px; cursor: pointer; transition: 0.3s; }
+            .tab-btn.active { background: var(--accent); color: white; }
+            
+            .tab-content { display: none; }
+            .tab-content.active { display: block; }
+            
+            .match-card { background: var(--card); padding: 16px; border-radius: 12px; margin-bottom: 12px; border-left: 4px solid var(--accent); display: flex; justify-content: space-between; align-items: center; }
+            .league-name { font-size: 10px; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; }
+            .team-names { font-weight: 700; margin-top: 5px; }
         </style>
     </head>
     <body>
-        <div class="tabs">
-            <button onclick="openTab(event, 'bugun')" class="active-btn" id="defaultOpen">Bugünün Maçları</button>
-            <button onclick="openTab(event, 'arsiv')">Analizler</button>
+        <div class="nav-tabs">
+            <button class="tab-btn active" onclick="switchTab(event, 'bugun')">🔥 Canlı</button>
+            <button class="tab-btn" onclick="switchTab(event, 'arsiv')">📈 Analiz</button>
         </div>
 
-        <div id="bugun" class="tab-pane active-pane">
+        <div id="bugun" class="tab-content active">
             {% if maclar %}
                 {% for m in maclar %}
-                <div class="card">
-                    <strong>{{ m.teams.home.name }} vs {{ m.teams.away.name }}</strong><br>
-                    <small style="color: #9ca3af;">{{ m.league.name }}</small>
+                <div class="match-card">
+                    <div>
+                        <div class="league-name">{{ m.league.name }}</div>
+                        <div class="team-names">{{ m.teams.home.name }} vs {{ m.teams.away.name }}</div>
+                    </div>
+                    <div style="font-size: 12px;">{{ m.fixture.status.short }}</div>
                 </div>
                 {% endfor %}
             {% else %}
-                <div class="card">Bugün canlı maç bulunamadı veya API bağlantısı kesik.</div>
+                <div style="text-align: center; color: #64748b;">Bugün veri akışı bulunamadı.</div>
             {% endif %}
         </div>
 
-        <div id="arsiv" class="tab-pane">
-            <div class="card">Buraya ileride kazanan/kaybeden analizlerini ekleyeceğiz.</div>
+        <div id="arsiv" class="tab-content">
+            <div class="match-card">
+                <div>Kasa Katlama (Kazanılan)</div>
+                <div style="color: #22c55e;">+3.45 Oran</div>
+            </div>
         </div>
 
         <script>
-            function openTab(evt, name) {
-                document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active-pane'));
-                document.querySelectorAll('button').forEach(b => b.classList.remove('active-btn'));
-                document.getElementById(name).classList.add('active-pane');
-                evt.currentTarget.classList.add('active-btn');
+            function switchTab(evt, name) {
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                document.getElementById(name).classList.add('active');
+                evt.currentTarget.classList.add('active');
             }
         </script>
     </body>

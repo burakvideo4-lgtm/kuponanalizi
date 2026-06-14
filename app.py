@@ -181,7 +181,7 @@ def ana_sayfa():
         .badge-tahmin { background: linear-gradient(135deg, #0284c7, #0369a1); color: white; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; }
         .oran-text { font-size: 14px; color: #10b981; font-weight: 700; margin-top: 4px; }
         
-        /* Yeni Eklenen Arşiv Kartı Tasarımları */
+        /* Arşiv Kartı Tasarımları */
         .badge-win { background: #10b981; color: white; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; }
         .badge-lose { background: #ef4444; color: white; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; }
         .card-win { border-left: 5px solid #10b981; }
@@ -238,11 +238,15 @@ def ana_sayfa():
                     </div>
                 </div>
                 
+                <!-- GÜNCELLENEN SONUÇLANAN ANALİZ ARŞİVİ (KASA KATLAMA DAHİL EDİLDİ) -->
                 <h2 class="section-title" style="color: #10b981; border-bottom: 2px solid rgba(16, 185, 129, 0.3); margin-top: 25px;">📊 SONUÇLANAN ANALİZ ARŞİVİ (DÜN)</h2>
+                
+                <h3 style="font-size: 13px; color: #34d399; margin-bottom: 10px; font-weight: 600;">🏆 Kazanan Analizler</h3>
                 <div class="grid-2">
+                    <!-- Kazanan Altın İkili -->
                     <div class="card card-win">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                            <h4 style="color: #10b981; margin: 0; font-size: 14px;">✅ Dün Sürpriz Kuponu</h4>
+                            <h4 style="color: #10b981; margin: 0; font-size: 14px;">✅ Dün Altın İkili - Sürpriz</h4>
                             <span class="badge-win">KAZANDI</span>
                         </div>
                         <p style="margin: 4px 0; font-size: 13px; color: #9ca3af;">🔹 Man. City - Liverpool <span style="color: #10b981; font-weight: bold;">(2.5 Üst) 🟢</span></p>
@@ -250,6 +254,22 @@ def ana_sayfa():
                         <h5 style="text-align: right; color: #10b981; margin: 10px 0 0 0; font-size: 13px;">Toplam Oran: 2.85</h5>
                     </div>
                     
+                    <!-- Kazanan Kasa Katlama (YENİ) -->
+                    <div class="card card-win">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                            <h4 style="color: #10b981; margin: 0; font-size: 14px;">✅ Dün Kasa Katlama - Seçim A</h4>
+                            <span class="badge-win">KAZANDI</span>
+                        </div>
+                        <p style="margin: 4px 0; font-size: 13px; color: #9ca3af;">🔹 Arsenal - Chelsea <span style="color: #10b981; font-weight: bold;">(MS 1) 🟢</span></p>
+                        <p style="margin: 4px 0; font-size: 13px; color: #9ca3af;">🔹 Aston Villa - Newcastle <span style="color: #10b981; font-weight: bold;">(KG Var) 🟢</span></p>
+                        <p style="margin: 4px 0; font-size: 13px; color: #9ca3af;">🔹 Monaco - Lyon <span style="color: #10b981; font-weight: bold;">(İY 0.5 Üst) 🟢</span></p>
+                        <h5 style="text-align: right; color: #10b981; margin: 10px 0 0 0; font-size: 13px;">Toplam Oran: 3.42</h5>
+                    </div>
+                </div>
+
+                <h3 style="font-size: 13px; color: #f87171; margin: 15px 0 10px 0; font-weight: 600;">❌ Kaybeden Analizler</h3>
+                <div class="grid-2">
+                    <!-- Kaybeden İdeal İkili -->
                     <div class="card card-lose">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                             <h4 style="color: #f87171; margin: 0; font-size: 14px;">❌ Dün İdeal İkili</h4>
@@ -258,6 +278,18 @@ def ana_sayfa():
                         <p style="margin: 4px 0; font-size: 13px; color: #9ca3af;">🔹 Juventus - Inter <span style="color: #10b981; font-weight: bold;">(KG Var) 🟢</span></p>
                         <p style="margin: 4px 0; font-size: 13px; color: #9ca3af;">🔹 Bayern Munich - Leipzig <span style="color: #ef4444; font-weight: bold;">(MS 1) 🔴</span></p>
                         <h5 style="text-align: right; color: #f87171; margin: 10px 0 0 0; font-size: 13px;">Toplam Oran: 2.10</h5>
+                    </div>
+
+                    <!-- Kaybeden Kasa Katlama (YENİ) -->
+                    <div class="card card-lose">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                            <h4 style="color: #f87171; margin: 0; font-size: 14px;">❌ Dün Kasa Katlama - Seçim B</h4>
+                            <span class="badge-lose">KAYBETTİ</span>
+                        </div>
+                        <p style="margin: 4px 0; font-size: 13px; color: #9ca3af;">🔹 Napoli - Lazio <span style="color: #10b981; font-weight: bold;">(2.5 Üst) 🟢</span></p>
+                        <p style="margin: 4px 0; font-size: 13px; color: #ef4444;">🔹 Atletico Madrid - Sevilla <span style="color: #ef4444; font-weight: bold;">(MS 1) 🔴</span></p>
+                        <p style="margin: 4px 0; font-size: 13px; color: #10b981;">🔹 Ajax - PSV <span style="color: #10b981; font-weight: bold;">(KG Var) 🟢</span></p>
+                        <h5 style="text-align: right; color: #f87171; margin: 10px 0 0 0; font-size: 13px;">Toplam Oran: 4.15</h5>
                     </div>
                 </div>
 

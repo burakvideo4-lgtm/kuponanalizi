@@ -5,85 +5,83 @@ from datetime import datetime
 
 app = Flask(__name__)
 
-# API ve Data yapısı aynı kalıyor, sadece HTML/JS kısmını güncelliyoruz
-def get_data_mock():
-    # Mock data üretimi (API yerine hızlı kontrol için)
+# API Bilgileri
+API_KEY = "999e0bfd03e0268f0ad00d6619da543f"
+API_URL = "https://v3.football.api-sports.io/fixtures"
+
+def veri_cek():
+    # Canlı veri çekmeye çalış
+    try:
+        headers = {'x-rapidapi-host': 'v3.football.api-sports.io', 'x-rapidapi-key': API_KEY}
+        bugun = datetime.now().strftime('%Y-%m-%d')
+        res = requests.get(f"{API_URL}?date={bugun}", headers=headers, timeout=3)
+        data = res.json().get("response", [])
+        
+        if not data: return mock_data() # Veri yoksa örnek veriye dön
+        
+        # Basit bir formatla döndür
+        return {"durum": "canli", "maclar": data[:10]}
+    except:
+        return mock_data() # Hata olursa örnek veriye dön
+
+def mock_data():
     return {
-        "guven_2li_A": 88, "guven_2li_B": 82, "guven_3lu_A": 75, "guven_3lu_B": 70,
-        "oran_2li_A": 2.85, "oran_2li_B": 2.40, "oran_3lu_A": 4.50, "oran_3lu_B": 3.90,
-        "tekli_maclar": [{"lig": "Premier Lig", "mac": "Arsenal - Chelsea", "tahmin": "MS 1", "oran": 1.55}],
-        "kupon_2li_A": [{"mac": "Real - Barca", "tahmin": "2.5 Üst"}, {"mac": "City - Liverpool", "tahmin": "MS 1"}],
-        "kupon_2li_B": [{"mac": "Milan - Inter", "tahmin": "KG Var"}, {"mac": "PSG - Monaco", "tahmin": "MS 1"}],
-        "kupon_3lu_A": [{"mac": "Roma - Lazio", "tahmin": "2.5 Üst"}, {"mac": "Lyon - Nice", "tahmin": "MS 1"}, {"mac": "Ajax - Feyenoord", "tahmin": "MS 1"}],
-        "kupon_3lu_B": [{"mac": "Benfica - Porto", "tahmin": "KG Var"}, {"mac": "Sporting - Braga", "tahmin": "MS 1"}, {"mac": "Boca - River", "tahmin": "2.5 Üst"}]
+        "durum": "arsiv",
+        "maclar": [
+            {"teams": {"home": {"name": "Arsenal"}, "away": {"name": "Chelsea"}}, "league": {"name": "Premier Lig"}},
+            {"teams": {"home": {"name": "Real Madrid"}, "away": {"name": "Barcelona"}}, "league": {"name": "La Liga"}},
+            {"teams": {"home": {"name": "Milan"}, "away": {"name": "Inter"}}, "league": {"name": "Serie A"}}
+        ]
     }
 
 @app.route('/')
-def ana_sayfa():
-    d = get_data_mock()
+def index():
+    data = veri_cek()
     
-    html_kod = """<!DOCTYPE html>
+    html = """<!DOCTYPE html>
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BETAI // Smart Portal</title>
     <style>
-        body { font-family: sans-serif; background: #030712; color: #f3f4f6; margin: 0; padding: 15px; }
-        .wrapper { max-width: 900px; margin: 0 auto; }
-        .tabs-container { display: flex; gap: 5px; background: #1e293b; padding: 5px; border-radius: 10px; overflow-x: auto; }
-        .tab-btn { flex: 1; padding: 10px; border: none; background: transparent; color: #9ca3af; cursor: pointer; border-radius: 6px; font-weight: bold; white-space: nowrap; }
-        .tab-btn.active { background: #38bdf8; color: white; }
-        .tab-content { display: none; padding-top: 20px; }
-        .tab-content.active { display: block; }
-        .card { background: #111827; padding: 15px; border-radius: 12px; margin-bottom: 10px; border: 1px solid #374151; }
+        body { background: #030712; color: #fff; font-family: sans-serif; padding: 20px; }
+        .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+        .tab-btn { padding: 10px 20px; background: #1f2937; border: none; color: #fff; border-radius: 5px; cursor: pointer; }
+        .tab-btn.active { background: #0ea5e9; }
+        .content { display: none; }
+        .content.active { display: block; }
+        .card { background: #111827; padding: 15px; border-radius: 8px; border: 1px solid #374151; margin-bottom: 10px; }
     </style>
 </head>
 <body>
-    <div class="wrapper">
-        <div class="tabs-container">
-            <button class="tab-btn active" onclick="openTab(event, 'bugun')">🔥 Bugün</button>
-            <button class="tab-btn" onclick="openTab(event, 'kazananlar')">✅ Kazananlar</button>
-            <button class="tab-btn" onclick="openTab(event, 'kaybedenler')">❌ Kaybedenler</button>
-            <button class="tab-btn" onclick="openTab(event, 'rekorlar')">👑 Rekorlar</button>
-        </div>
+    <div class="tabs">
+        <button class="tab-btn active" onclick="show(event, 'bugun')">🔥 Bugün</button>
+        <button class="tab-btn" onclick="show(event, 'arsiv')">📊 Arşiv</button>
+    </div>
 
-        <div id="bugun" class="tab-content active">
-            <h2>Günün Analizleri</h2>
-            <div class="card">İçerik burada...</div>
-        </div>
-        <div id="kazananlar" class="tab-content">
-            <h2>Kazananlar Arşivi</h2>
-            <div class="card">Tebrikler, her şey yolunda!</div>
-        </div>
-        <div id="kaybedenler" class="tab-content">
-            <h2>Kaybedenler</h2>
-            <div class="card">Yarın yeni bir gün!</div>
-        </div>
-        <div id="rekorlar" class="tab-content">
-            <h2>Oran Rekorları</h2>
-            <div class="card">Tarihi başarılar...</div>
-        </div>
+    <div id="bugun" class="content active">
+        <h3>Günün Maçları</h3>
+        {% for m in data.maclar %}
+        <div class="card">{{ m.teams.home.name }} vs {{ m.teams.away.name }} - {{ m.league.name }}</div>
+        {% endfor %}
+    </div>
+
+    <div id="arsiv" class="content">
+        <h3>Analiz Geçmişi</h3>
+        <div class="card">Geçmiş kupon verileri burada listelenecek.</div>
     </div>
 
     <script>
-        function openTab(evt, tabName) {
-            var i, tabcontent, tablinks;
-            tabcontent = document.getElementsByClassName("tab-content");
-            for (i = 0; i < tabcontent.length; i++) {
-                tabcontent[i].style.display = "none";
-            }
-            tablinks = document.getElementsByClassName("tab-btn");
-            for (i = 0; i < tablinks.length; i++) {
-                tablinks[i].className = tablinks[i].className.replace(" active", "");
-            }
-            document.getElementById(tabName).style.display = "block";
-            evt.currentTarget.className += " active";
+        function show(evt, id) {
+            document.querySelectorAll('.content').forEach(c => c.style.display = 'none');
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(id).style.display = 'block';
+            evt.currentTarget.classList.add('active');
         }
     </script>
 </body>
 </html>"""
-    return render_template_string(html_kod, d=d)
+    return render_template_string(html, data=data)
 
 if __name__ == '__main__':
     app.run(debug=True)

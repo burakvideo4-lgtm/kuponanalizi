@@ -5,7 +5,7 @@ from datetime import datetime
 
 app = Flask(__name__)
 
-# Canlı API Bilgileri
+# Canlı API Bilgileri (Dokunulmadı)
 API_KEY = "999e0bfd03e0268f0ad00d6619da543f"
 API_URL = "https://v3.football.api-sports.io/fixtures"
 
@@ -98,9 +98,8 @@ def ana_sayfa():
             <meta charset="utf-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <style>
-                /* Siber Küre Premium Teması */
                 body { 
-                    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif; 
+                    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif; 
                     margin: 0; 
                     padding: 15px; 
                     background: radial-gradient(circle at 50% 0%, #111827 0%, #030712 100%);
@@ -109,7 +108,6 @@ def ana_sayfa():
                 }
                 .wrapper { max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
                 
-                /* Başlık Tasarımı */
                 .header-box {
                     text-align: center;
                     padding: 25px 15px;
@@ -128,19 +126,16 @@ def ana_sayfa():
                     -webkit-background-clip: text;
                     -webkit-text-fill-color: transparent;
                 }
-                .header-box p { color: #9ca3af; font-size: 14px; margin: 8px 0 0 0; font-weight: 500; }
+                .header-box p { color: #9ca3af; font-size: 14px; margin: 8px 0 0 0; }
                 
-                /* Durum Çubuğu */
                 .status-bar {
                     background: linear-gradient(90deg, rgba(2, 132, 199, 0.2), rgba(15, 23, 42, 0.6));
                     border: 1px solid rgba(3, 105, 161, 0.4);
                     padding: 12px;
                     border-radius: 12px;
                     text-align: center;
-                    box-shadow: 0 0 15px rgba(2, 132, 199, 0.1);
                 }
                 
-                /* Kart Yapıları */
                 .card { 
                     background: rgba(30, 41, 59, 0.4); 
                     padding: 20px; 
@@ -157,7 +152,6 @@ def ana_sayfa():
                 
                 .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
                 
-                /* VIP Bölümü */
                 .vip-box { 
                     background: linear-gradient(135deg, #1e1b4b 0%, #311042 100%); 
                     padding: 25px; 
@@ -176,69 +170,29 @@ def ana_sayfa():
                 
                 .vip-btn {
                     background: linear-gradient(90deg, #6366f1, #a855f7); 
-                    color: white; 
-                    border: none; 
-                    padding: 12px 24px; 
-                    font-size: 14px; 
-                    font-weight: 700; 
-                    border-radius: 10px; 
-                    cursor: pointer; 
-                    width: 100%;
+                    color: white; border: none; padding: 12px 24px; font-size: 14px; font-weight: 700; border-radius: 10px; cursor: pointer; width: 100%;
                     box-shadow: 0 4px 15px rgba(168, 85, 247, 0.4);
-                    transition: opacity 0.2s;
                 }
-                .vip-btn:hover { opacity: 0.9; }
 
-                /* Başlık Etiketleri */
-                h2.section-title {
-                    font-size: 18px;
-                    text-transform: uppercase;
-                    letter-spacing: 1px;
-                    margin-top: 5px;
-                    padding-bottom: 8px;
-                }
+                h2.section-title { font-size: 18px; text-transform: uppercase; letter-spacing: 1px; margin-top: 5px; padding-bottom: 8px; }
                 
-                /* Sağ Liste Maç Alanı */
                 .mac-row {
-                    background: rgba(30, 41, 59, 0.3); 
-                    padding: 14px; 
-                    margin-bottom: 12px; 
-                    border-radius: 12px; 
-                    display: flex; 
-                    justify-content: space-between; 
-                    align-items: center; 
-                    border: 1px solid rgba(255, 255, 255, 0.03);
-                    transition: background 0.2s;
+                    background: rgba(30, 41, 59, 0.3); padding: 14px; margin-bottom: 12px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(255, 255, 255, 0.03);
                 }
                 .mac-row:hover { background: rgba(30, 41, 59, 0.5); }
                 
-                /* Rozetler */
-                .badge-tahmin {
-                    background: linear-gradient(135deg, #0284c7, #0369a1); 
-                    color: white; 
-                    padding: 4px 10px; 
-                    border-radius: 6px; 
-                    font-size: 11px; 
-                    font-weight: 700;
-                }
+                .badge-tahmin { background: linear-gradient(135deg, #0284c7, #0369a1); color: white; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; }
                 .oran-text { font-size: 14px; color: #10b981; font-weight: 700; margin-top: 4px; }
                 
-                /* Düzen Değişiklikleri */
-                @media (min-width: 769px) {
-                    .main-layout { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 25px; }
-                }
-                @media (max-width: 768px) {
-                    .grid-2, .vip-grid { grid-template-columns: 1fr; }
-                    .header-box h1 { font-size: 22px; }
-                }
+                @media (min-width: 769px) { .main-layout { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 25px; } }
+                @media (max-width: 768px) { .grid-2, .vip-grid { grid-template-columns: 1fr; } .header-box h1 { font-size: 22px; } }
             </style>
         </head>
         <body>
             <div class="wrapper">
-                
                 <div class="header-box">
                     <h1>⚡ BETAI PREMİUM ANALİZ ⚡</h1>
-                    <p>Yayındaki Gerçek Zamanlı Yapay Zeka Fikstür ve Tahmin Portalı</p>
+                    <p>Yayındaki Gerçek Zamanlı Fikstür ve Tahmin Portalı</p>
                 </div>
                 
                 <div class="status-bar">
@@ -246,10 +200,8 @@ def ana_sayfa():
                 </div>
 
                 <div class="main-layout">
-                    
                     <div>
                         <h2 class="section-title" style="color: #fbbf24; border-bottom: 2px solid rgba(251, 191, 36, 0.3);">🔥 Günün Yapay Zeka Kombineleri</h2>
-                        
                         <div class="grid-2">
                             <div class="card">
                                 <h4 style="color: #34d399; margin: 0 0 12px 0; font-size: 14px;">🟢 Altın İkili - Kampanya A (%{{ d.guven_2li_A }})</h4>
@@ -262,7 +214,6 @@ def ana_sayfa():
                                 <h5 style="text-align: right; color: #34d399; margin: 12px 0 0 0; font-size: 14px;">Toplam Oran: {{ d.oran_2li_B }}</h5>
                             </div>
                         </div>
-                        
                         <div class="grid-2" style="margin-top: 10px;">
                             <div class="card">
                                 <h4 style="color: #f87171; margin: 0 0 12px 0; font-size: 14px;">🔴 Kasa Katlama - Seçim A (%{{ d.guven_3lu_A }})</h4>
@@ -271,59 +222,4 @@ def ana_sayfa():
                             </div>
                             <div class="card">
                                 <h4 style="color: #f87171; margin: 0 0 12px 0; font-size: 14px;">🔴 Kasa Katlama - Seçim B (%{{ d.guven_3lu_B }})</h4>
-                                {% for m in d.kupon_3lu_B %} <p style="margin: 6px 0; font-size: 13px; color: #e5e7eb;">🔹 <b>{{ m.mac }}</b> <span style="color: #38bdf8;">({{ m.tahmin }})</span></p> {% endfor %}
-                                <h5 style="text-align: right; color: #f87171; margin: 12px 0 0 0; font-size: 14px;">Toplam Oran: {{ d.oran_3lu_B }}</h5>
-                            </div>
-                        </div>
-                        
-                        <h2 class="section-title" style="color: #c084fc; border-bottom: 2px solid rgba(192, 132, 252, 0.3); margin-top: 20px;">👑 ANALYTICS VIP ROOM</h2>
-                        <div class="vip-box">
-                            <div class="vip-grid">
-                                <div class="vip-card">
-                                    <span style="font-size: 11px; color: #fbbf24; font-weight: 600;">⭐ VIP GOLD</span>
-                                    <div style="font-size: 22px; margin: 8px 0;">🔒</div>
-                                    <span style="font-size: 11px; color: #9ca3af;">Oran: +4.50</span>
-                                </div>
-                                <div class="vip-card">
-                                    <span style="font-size: 11px; color: #f87171; font-weight: 600;">🔥 SKOR VIP</span>
-                                    <div style="font-size: 22px; margin: 8px 0;">🔒</div>
-                                    <span style="font-size: 11px; color: #9ca3af;">Oran: +12.00</span>
-                                </div>
-                                <div class="vip-card">
-                                    <span style="font-size: 11px; color: #34d399; font-weight: 600;">💰 KASA VIP</span>
-                                    <div style="font-size: 22px; margin: 8px 0;">🔒</div>
-                                    <span style="font-size: 11px; color: #9ca3af;">Oran: +3.20</span>
-                                </div>
-                            </div>
-                            <button onclick="alert('VIP Altyapısı Çok Yakında Aktif Olacak!');" class="vip-btn">
-                                VIP SİSTEME KATIL
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <div>
-                        <h2 class="section-title" style="color: #38bdf8; border-bottom: 2px solid rgba(56, 189, 248, 0.3);">📈 Bugünün Canlı Fikstür Listesi</h2>
-                        
-                        {% for t in d.tekli_maclar %}
-                        <div class="mac-row">
-                            <div style="max-width: 70%;">
-                                <span style="font-size: 10px; color: #a1a1aa; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">{{ t.lig }}</span>
-                                <div style="font-weight: 600; font-size: 13px; margin-top: 3px; color: #f3f4f6; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ t.mac }}</div>
-                            </div>
-                            <div style="text-align: right; min-width: 75px;">
-                                <span class="badge-tahmin">{{ t.tahmin }}</span>
-                                <div class="oran-text">{{ t.oran }}</div>
-                            </div>
-                        </div>
-                        {% endfor %}
-                        
-                    </div>
-                </div>
-            </div>
-        </body>
-    </html>
-    """
-    return render_template_string(html_kod, d=d)
-
-if __name__ == '__main__':
-    app.run(debug=True)
+                                {% for m in d.kupon_3lu_B %} <p style="margin: 6px 0; font-size: 13px; color: #e5e7eb;">

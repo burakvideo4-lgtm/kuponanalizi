@@ -24,8 +24,14 @@ def bugunun_gercek_maclarini_getir():
             return yedek_analiz_havuzu()
 
         tahmin_havuzu = []
-        for m in mac_listesi[:35]:
+        for m in mac_listesi:
             try:
+                # OYNANMIŞ MAÇLARI ELEME FİLTRESİ
+                # FT = Finished (Bitti), AET = Uzatmalarda Bitti, PEN = Penaltılarda Bitti
+                mac_durumu = m['fixture']['status']['short']
+                if mac_durumu in ['FT', 'AET', 'PEN', 'PST', 'CANC']: 
+                    continue # Eğer maç bitmiş, ertelenmiş veya iptal edilmişse bu maçı atla, listeye alma.
+
                 ev_takim = m['teams']['home']['name']
                 deplasman_takim = m['teams']['away']['name']
                 lig_adi = m['league']['name']
@@ -43,6 +49,10 @@ def bugunun_gercek_maclarini_getir():
                     "oran": oran,
                     "yuzde": yuzde
                 })
+                
+                # Toplam 30 tane güncel maç bulduğumuzda aramayı durduralım ki sistem yorulmasın
+                if len(tahmin_havuzu) >= 30:
+                    break
             except:
                 continue
 
@@ -72,7 +82,7 @@ def kuponlari_olustur(tahmin_havuzu):
         "oran_3lu_B": round(k4[0]['oran'] * k4[1]['oran'] * k4[2]['oran'], 2),
         "guven_2li_A": round((k1[0]['yuzde'] + k1[1]['yuzde']) / 2),
         "guven_2li_B": round((k2[0]['yuzde'] + k2[1]['yuzde']) / 2),
-        "guven_3lu_A": round((k3[0]['yuvde'] + k3[1]['yuzde'] + k3[2]['yuzde']) / 3) if 'yuvde' in k3[0] else round((k3[0]['yuzde'] + k3[1]['yuzde'] + k3[2]['yuzde']) / 3),
+        "guven_3lu_A": round((k3[0]['yuzde'] + k3[1]['yuzde'] + k3[2]['yuzde']) / 3),
         "guven_3lu_B": round((k4[0]['yuzde'] + k4[1]['yuzde'] + k4[2]['yuzde']) / 3)
     }
 

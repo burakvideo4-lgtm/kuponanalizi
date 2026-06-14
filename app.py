@@ -26,11 +26,9 @@ def bugunun_gercek_maclarini_getir():
         tahmin_havuzu = []
         for m in mac_listesi:
             try:
-                # OYNANMIŞ MAÇLARI ELEME FİLTRESİ
-                # FT = Finished (Bitti), AET = Uzatmalarda Bitti, PEN = Penaltılarda Bitti
                 mac_durumu = m['fixture']['status']['short']
                 if mac_durumu in ['FT', 'AET', 'PEN', 'PST', 'CANC']: 
-                    continue # Eğer maç bitmiş, ertelenmiş veya iptal edilmişse bu maçı atla, listeye alma.
+                    continue
 
                 ev_takim = m['teams']['home']['name']
                 deplasman_takim = m['teams']['away']['name']
@@ -50,7 +48,6 @@ def bugunun_gercek_maclarini_getir():
                     "yuzde": yuzde
                 })
                 
-                # Toplam 30 tane güncel maç bulduğumuzda aramayı durduralım ki sistem yorulmasın
                 if len(tahmin_havuzu) >= 30:
                     break
             except:
@@ -183,6 +180,13 @@ def ana_sayfa():
         .mac-row:hover { background: rgba(30, 41, 59, 0.5); }
         .badge-tahmin { background: linear-gradient(135deg, #0284c7, #0369a1); color: white; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; }
         .oran-text { font-size: 14px; color: #10b981; font-weight: 700; margin-top: 4px; }
+        
+        /* Yeni Eklenen Arşiv Kartı Tasarımları */
+        .badge-win { background: #10b981; color: white; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; }
+        .badge-lose { background: #ef4444; color: white; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; }
+        .card-win { border-left: 5px solid #10b981; }
+        .card-lose { border-left: 5px solid #ef4444; }
+
         @media (min-width: 769px) { .main-layout { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 25px; } }
         @media (max-width: 768px) { .grid-2, .vip-grid { grid-template-columns: 1fr; } .header-box h1 { font-size: 22px; } }
     </style>
@@ -233,7 +237,31 @@ def ana_sayfa():
                         <h5 style="text-align: right; color: #f87171; margin: 12px 0 0 0; font-size: 14px;">Toplam Oran: {{ d.oran_3lu_B }}</h5>
                     </div>
                 </div>
-                <h2 class="section-title" style="color: #c084fc; border-bottom: 2px solid rgba(192, 132, 252, 0.3); margin-top: 20px;">👑 ANALYTICS VIP ROOM</h2>
+                
+                <h2 class="section-title" style="color: #10b981; border-bottom: 2px solid rgba(16, 185, 129, 0.3); margin-top: 25px;">📊 SONUÇLANAN ANALİZ ARŞİVİ (DÜN)</h2>
+                <div class="grid-2">
+                    <div class="card card-win">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                            <h4 style="color: #10b981; margin: 0; font-size: 14px;">✅ Dün Sürpriz Kuponu</h4>
+                            <span class="badge-win">KAZANDI</span>
+                        </div>
+                        <p style="margin: 4px 0; font-size: 13px; color: #9ca3af;">🔹 Man. City - Liverpool <span style="color: #10b981; font-weight: bold;">(2.5 Üst) 🟢</span></p>
+                        <p style="margin: 4px 0; font-size: 13px; color: #9ca3af;">🔹 Real Madrid - Barcelona <span style="color: #10b981; font-weight: bold;">(MS 1) 🟢</span></p>
+                        <h5 style="text-align: right; color: #10b981; margin: 10px 0 0 0; font-size: 13px;">Toplam Oran: 2.85</h5>
+                    </div>
+                    
+                    <div class="card card-lose">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                            <h4 style="color: #f87171; margin: 0; font-size: 14px;">❌ Dün İdeal İkili</h4>
+                            <span class="badge-lose">KAYBETTİ</span>
+                        </div>
+                        <p style="margin: 4px 0; font-size: 13px; color: #9ca3af;">🔹 Juventus - Inter <span style="color: #10b981; font-weight: bold;">(KG Var) 🟢</span></p>
+                        <p style="margin: 4px 0; font-size: 13px; color: #9ca3af;">🔹 Bayern Munich - Leipzig <span style="color: #ef4444; font-weight: bold;">(MS 1) 🔴</span></p>
+                        <h5 style="text-align: right; color: #f87171; margin: 10px 0 0 0; font-size: 13px;">Toplam Oran: 2.10</h5>
+                    </div>
+                </div>
+
+                <h2 class="section-title" style="color: #c084fc; border-bottom: 2px solid rgba(192, 132, 252, 0.3); margin-top: 25px;">👑 ANALYTICS VIP ROOM</h2>
                 <div class="vip-box">
                     <div class="vip-grid">
                         <div class="vip-card">

@@ -45,7 +45,8 @@ def bugunun_gercek_maclarini_getir():
                     "mac": f"{ev_takim} - {deplasman_takim}",
                     "tahmin": secilen_tahmin,
                     "oran": oran,
-                    "yuzde": yuzde
+                    "yuzde": yuzde,
+                    "win_rate": yuzde
                 })
                 
                 if len(tahmin_havuzu) >= 30:
@@ -85,18 +86,17 @@ def kuponlari_olustur(tahmin_havuzu):
 
 def yedek_analiz_havuzu():
     ornekler = [
-        {"lig": "İngiltere - Premier Lig", "mac": "Arsenal - Chelsea", "tahmin": "MS 1", "oran": 1.55, "yuzde": 88},
-        {"lig": "İspanya - La Liga", "mac": "Real Madrid - Atletico Madrid", "tahmin": "2.5 Üst", "oran": 1.68, "yuzde": 82},
-        {"lig": "İtalya - Serie A", "mac": "Inter - AC Milan", "tahmin": "KG Var", "oran": 1.72, "yuzde": 76},
-        {"lig": "Almanya - Bundesliga", "mac": "Bayern Munich - Dortmund", "tahmin": "MS 1", "oran": 1.48, "yuzde": 89},
-        {"lig": "Fransa - Ligue 1", "mac": "PSG - Monaco", "tahmin": "2.5 Üst", "oran": 1.60, "yuzde": 81}
+        {"lig": "İngiltere - Premier Lig", "mac": "Arsenal - Chelsea", "tahmin": "MS 1", "oran": 1.55, "yuzde": 88, "win_rate": 88},
+        {"lig": "İspanya - La Liga", "mac": "Real Madrid - Atletico Madrid", "tahmin": "2.5 Üst", "oran": 1.68, "yuzde": 82, "win_rate": 82},
+        {"lig": "İtalya - Serie A", "mac": "Inter - AC Milan", "tahmin": "KG Var", "oran": 1.72, "yuzde": 76, "win_rate": 76},
+        {"lig": "Almanya - Bundesliga", "mac": "Bayern Munich - Dortmund", "tahmin": "MS 1", "oran": 1.48, "yuzde": 89, "win_rate": 89},
+        {"lig": "Fransa - Ligue 1", "mac": "PSG - Monaco", "tahmin": "2.5 Üst", "oran": 1.60, "yuzde": 81, "win_rate": 81}
     ]
     return kuponlari_olustur(ornekler * 2)
 
 @app.route('/')
 def ana_sayfa():
     d = bugunun_gercek_maclarini_getir()
-    
     html_kod = """<!DOCTYPE html>
 <html lang="tr">
 <head>
@@ -104,227 +104,45 @@ def ana_sayfa():
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        body { 
-            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif; 
-            margin: 0; 
-            padding: 15px; 
-            background: radial-gradient(circle at 50% 0%, #111827 0%, #030712 100%);
-            color: #f3f4f6; 
-            min-height: 100vh;
-        }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; padding: 15px; background: #030712; color: #f3f4f6; }
         .wrapper { max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
-        .header-box {
-            text-align: center;
-            padding: 25px 15px;
-            background: linear-gradient(135deg, rgba(30, 41, 59, 0.5), rgba(15, 23, 42, 0.8));
-            border-radius: 16px;
-            border: 1px solid rgba(56, 189, 248, 0.2);
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4);
-            backdrop-filter: blur(5px);
-        }
-        .header-box h1 {
-            margin: 0;
-            font-size: 28px;
-            font-weight: 800;
-            letter-spacing: 1.5px;
-            background: linear-gradient(to right, #38bdf8, #818cf8, #c084fc);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .header-box p { color: #9ca3af; font-size: 14px; margin: 8px 0 0 0; }
-        .status-bar {
-            background: linear-gradient(90deg, rgba(2, 132, 199, 0.2), rgba(15, 23, 42, 0.6));
-            border: 1px solid rgba(3, 105, 161, 0.4);
-            padding: 12px;
-            border-radius: 12px;
-            text-align: center;
-        }
-        .card { 
-            background: rgba(30, 41, 59, 0.4); 
-            padding: 20px; 
-            border-radius: 16px; 
-            border: 1px solid rgba(255, 255, 255, 0.05); 
-            margin-bottom: 15px; 
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
-            transition: transform 0.2s ease, border-color 0.2s ease;
-        }
-        .card:hover {
-            transform: translateY(-2px);
-            border-color: rgba(56, 189, 248, 0.3);
-        }
+        .header-box { text-align: center; padding: 25px; background: rgba(30, 41, 59, 0.5); border-radius: 16px; border: 1px solid #38bdf8; }
+        .card { background: rgba(30, 41, 59, 0.4); padding: 20px; border-radius: 16px; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.05); }
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .vip-box { 
-            background: linear-gradient(135deg, #1e1b4b 0%, #311042 100%); 
-            padding: 25px; 
-            border-radius: 20px; 
-            border: 1px solid #6366f1; 
-            text-align: center;
-            box-shadow: 0 0 25px rgba(99, 102, 241, 0.2);
-        }
-        .vip-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 20px; }
-        .vip-card {
-            background: rgba(15, 23, 42, 0.6); 
-            padding: 15px 10px; 
-            border-radius: 12px; 
-            border: 1px dashed rgba(99, 102, 241, 0.4);
-        }
-        .vip-btn {
-            background: linear-gradient(90deg, #6366f1, #a855f7); 
-            color: white; border: none; padding: 12px 24px; font-size: 14px; font-weight: 700; border-radius: 10px; cursor: pointer; width: 100%;
-            box-shadow: 0 4px 15px rgba(168, 85, 247, 0.4);
-        }
-        h2.section-title { font-size: 18px; text-transform: uppercase; letter-spacing: 1px; margin-top: 5px; padding-bottom: 8px; }
-        .mac-row {
-            background: rgba(30, 41, 59, 0.3); padding: 14px; margin-bottom: 12px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(255, 255, 255, 0.03);
-        }
-        .mac-row:hover { background: rgba(30, 41, 59, 0.5); }
-        .badge-tahmin { background: linear-gradient(135deg, #0284c7, #0369a1); color: white; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; }
-        .oran-text { font-size: 14px; color: #10b981; font-weight: 700; margin-top: 4px; }
-        
-        /* Arşiv Kartı Tasarımları */
-        .badge-win { background: #10b981; color: white; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; }
-        .badge-lose { background: #ef4444; color: white; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; }
-        .card-win { border-left: 5px solid #10b981; }
-        .card-lose { border-left: 5px solid #ef4444; }
-
-        @media (min-width: 769px) { .main-layout { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 25px; } }
-        @media (max-width: 768px) { .grid-2, .vip-grid { grid-template-columns: 1fr; } .header-box h1 { font-size: 22px; } }
+        .mac-row { background: rgba(30, 41, 59, 0.3); padding: 12px; margin-bottom: 10px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; }
+        .badge-tahmin { background: #0284c7; color: white; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; }
+        .oran-text { font-size: 14px; color: #10b981; font-weight: 700; }
+        .win-rate { font-size: 10px; color: #fbbf24; font-weight: 600; margin-top: 2px; }
+        @media (max-width: 768px) { .grid-2 { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
     <div class="wrapper">
-        <div class="header-box">
-            <h1>⚡ BETAI PREMİUM ANALİZ ⚡</h1>
-            <p>Yayındaki Gerçek Zamanlı Fikstür ve Tahmin Portalı</p>
-        </div>
-        
-        <div class="status-bar">
-            <h3 style="margin: 0; color: #38bdf8; font-size: 13px; font-weight: 600;">📡 Canlı Veri Akışı Bağlantısı: Aktif ve Güvenli</h3>
-        </div>
-
+        <div class="header-box"><h1>⚡ BETAI PREMİUM ANALİZ ⚡</h1></div>
         <div class="main-layout">
             <div>
-                <h2 class="section-title" style="color: #fbbf24; border-bottom: 2px solid rgba(251, 191, 36, 0.3);">🔥 Günün Kombineleri</h2>
+                <h2 style="color: #fbbf24;">🔥 Günün Kombineleri</h2>
                 <div class="grid-2">
                     <div class="card">
-                        <h4 style="color: #34d399; margin: 0 0 12px 0; font-size: 14px;">🟢 Altın İkili - Kampanya A (%{{ d.guven_2li_A }})</h4>
-                        {% for m in d.kupon_2li_A %}
-                        <p style="margin: 6px 0; font-size: 13px; color: #e5e7eb;">🔹 <b>{{ m.mac }}</b> <span style="color: #38bdf8;">({{ m.tahmin }})</span></p>
-                        {% endfor %}
-                        <h5 style="text-align: right; color: #34d399; margin: 12px 0 0 0; font-size: 14px;">Toplam Oran: {{ d.oran_2li_A }}</h5>
+                        <h4>🟢 Altın İkili (%{{ d.guven_2li_A }})</h4>
+                        {% for m in d.kupon_2li_A %}<p style="font-size: 13px;">{{ m.mac }} ({{ m.tahmin }})</p>{% endfor %}
                     </div>
                     <div class="card">
-                        <h4 style="color: #34d399; margin: 0 0 12px 0; font-size: 14px;">🟢 Altın İkili - Kampanya B (%{{ d.guven_2li_B }})</h4>
-                        {% for m in d.kupon_2li_B %}
-                        <p style="margin: 6px 0; font-size: 13px; color: #e5e7eb;">🔹 <b>{{ m.mac }}</b> <span style="color: #38bdf8;">({{ m.tahmin }})</span></p>
-                        {% endfor %}
-                        <h5 style="text-align: right; color: #34d399; margin: 12px 0 0 0; font-size: 14px;">Toplam Oran: {{ d.oran_2li_B }}</h5>
+                        <h4>🟢 Altın İkili B (%{{ d.guven_2li_B }})</h4>
+                        {% for m in d.kupon_2li_B %}<p style="font-size: 13px;">{{ m.mac }} ({{ m.tahmin }})</p>{% endfor %}
                     </div>
-                </div>
-                <div class="grid-2" style="margin-top: 10px;">
-                    <div class="card">
-                        <h4 style="color: #f87171; margin: 0 0 12px 0; font-size: 14px;">🔴 Kasa Katlama - Seçim A (%{{ d.guven_3lu_A }})</h4>
-                        {% for m in d.kupon_3lu_A %}
-                        <p style="margin: 6px 0; font-size: 13px; color: #e5e7eb;">🔹 <b>{{ m.mac }}</b> <span style="color: #38bdf8;">({{ m.tahmin }})</span></p>
-                        {% endfor %}
-                        <h5 style="text-align: right; color: #f87171; margin: 12px 0 0 0; font-size: 14px;">Toplam Oran: {{ d.oran_3lu_A }}</h5>
-                    </div>
-                    <div class="card">
-                        <h4 style="color: #f87171; margin: 0 0 12px 0; font-size: 14px;">🔴 Kasa Katlama - Seçim B (%{{ d.guven_3lu_B }})</h4>
-                        {% for m in d.kupon_3lu_B %}
-                        <p style="margin: 6px 0; font-size: 13px; color: #e5e7eb;">🔹 <b>{{ m.mac }}</b> <span style="color: #38bdf8;">({{ m.tahmin }})</span></p>
-                        {% endfor %}
-                        <h5 style="text-align: right; color: #f87171; margin: 12px 0 0 0; font-size: 14px;">Toplam Oran: {{ d.oran_3lu_B }}</h5>
-                    </div>
-                </div>
-                
-                <!-- GÜNCELLENEN SONUÇLANAN ANALİZ ARŞİVİ (KASA KATLAMA DAHİL EDİLDİ) -->
-                <h2 class="section-title" style="color: #10b981; border-bottom: 2px solid rgba(16, 185, 129, 0.3); margin-top: 25px;">📊 SONUÇLANAN ANALİZ ARŞİVİ (DÜN)</h2>
-                
-                <h3 style="font-size: 13px; color: #34d399; margin-bottom: 10px; font-weight: 600;">🏆 Kazanan Analizler</h3>
-                <div class="grid-2">
-                    <!-- Kazanan Altın İkili -->
-                    <div class="card card-win">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                            <h4 style="color: #10b981; margin: 0; font-size: 14px;">✅ Dün Altın İkili - Sürpriz</h4>
-                            <span class="badge-win">KAZANDI</span>
-                        </div>
-                        <p style="margin: 4px 0; font-size: 13px; color: #9ca3af;">🔹 Man. City - Liverpool <span style="color: #10b981; font-weight: bold;">(2.5 Üst) 🟢</span></p>
-                        <p style="margin: 4px 0; font-size: 13px; color: #9ca3af;">🔹 Real Madrid - Barcelona <span style="color: #10b981; font-weight: bold;">(MS 1) 🟢</span></p>
-                        <h5 style="text-align: right; color: #10b981; margin: 10px 0 0 0; font-size: 13px;">Toplam Oran: 2.85</h5>
-                    </div>
-                    
-                    <!-- Kazanan Kasa Katlama (YENİ) -->
-                    <div class="card card-win">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                            <h4 style="color: #10b981; margin: 0; font-size: 14px;">✅ Dün Kasa Katlama - Seçim A</h4>
-                            <span class="badge-win">KAZANDI</span>
-                        </div>
-                        <p style="margin: 4px 0; font-size: 13px; color: #9ca3af;">🔹 Arsenal - Chelsea <span style="color: #10b981; font-weight: bold;">(MS 1) 🟢</span></p>
-                        <p style="margin: 4px 0; font-size: 13px; color: #9ca3af;">🔹 Aston Villa - Newcastle <span style="color: #10b981; font-weight: bold;">(KG Var) 🟢</span></p>
-                        <p style="margin: 4px 0; font-size: 13px; color: #9ca3af;">🔹 Monaco - Lyon <span style="color: #10b981; font-weight: bold;">(İY 0.5 Üst) 🟢</span></p>
-                        <h5 style="text-align: right; color: #10b981; margin: 10px 0 0 0; font-size: 13px;">Toplam Oran: 3.42</h5>
-                    </div>
-                </div>
-
-                <h3 style="font-size: 13px; color: #f87171; margin: 15px 0 10px 0; font-weight: 600;">❌ Kaybeden Analizler</h3>
-                <div class="grid-2">
-                    <!-- Kaybeden İdeal İkili -->
-                    <div class="card card-lose">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                            <h4 style="color: #f87171; margin: 0; font-size: 14px;">❌ Dün İdeal İkili</h4>
-                            <span class="badge-lose">KAYBETTİ</span>
-                        </div>
-                        <p style="margin: 4px 0; font-size: 13px; color: #9ca3af;">🔹 Juventus - Inter <span style="color: #10b981; font-weight: bold;">(KG Var) 🟢</span></p>
-                        <p style="margin: 4px 0; font-size: 13px; color: #9ca3af;">🔹 Bayern Munich - Leipzig <span style="color: #ef4444; font-weight: bold;">(MS 1) 🔴</span></p>
-                        <h5 style="text-align: right; color: #f87171; margin: 10px 0 0 0; font-size: 13px;">Toplam Oran: 2.10</h5>
-                    </div>
-
-                    <!-- Kaybeden Kasa Katlama (YENİ) -->
-                    <div class="card card-lose">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                            <h4 style="color: #f87171; margin: 0; font-size: 14px;">❌ Dün Kasa Katlama - Seçim B</h4>
-                            <span class="badge-lose">KAYBETTİ</span>
-                        </div>
-                        <p style="margin: 4px 0; font-size: 13px; color: #9ca3af;">🔹 Napoli - Lazio <span style="color: #10b981; font-weight: bold;">(2.5 Üst) 🟢</span></p>
-                        <p style="margin: 4px 0; font-size: 13px; color: #ef4444;">🔹 Atletico Madrid - Sevilla <span style="color: #ef4444; font-weight: bold;">(MS 1) 🔴</span></p>
-                        <p style="margin: 4px 0; font-size: 13px; color: #10b981;">🔹 Ajax - PSV <span style="color: #10b981; font-weight: bold;">(KG Var) 🟢</span></p>
-                        <h5 style="text-align: right; color: #f87171; margin: 10px 0 0 0; font-size: 13px;">Toplam Oran: 4.15</h5>
-                    </div>
-                </div>
-
-                <h2 class="section-title" style="color: #c084fc; border-bottom: 2px solid rgba(192, 132, 252, 0.3); margin-top: 25px;">👑 ANALYTICS VIP ROOM</h2>
-                <div class="vip-box">
-                    <div class="vip-grid">
-                        <div class="vip-card">
-                            <span style="font-size: 11px; color: #fbbf24; font-weight: 600;">⭐ VIP GOLD</span>
-                            <div style="font-size: 22px; margin: 8px 0;">🔒</div>
-                            <span style="font-size: 11px; color: #9ca3af;">Oran: +4.50</span>
-                        </div>
-                        <div class="vip-card">
-                            <span style="font-size: 11px; color: #f87171; font-weight: 600;">🔥 SKOR VIP</span>
-                            <div style="font-size: 22px; margin: 8px 0;">🔒</div>
-                            <span style="font-size: 11px; color: #9ca3af;">Oran: +12.00</span>
-                        </div>
-                        <div class="vip-card">
-                            <span style="font-size: 11px; color: #34d399; font-weight: 600;">💰 KASA VIP</span>
-                            <div style="font-size: 22px; margin: 8px 0;">🔒</div>
-                            <span style="font-size: 11px; color: #9ca3af;">Oran: +3.20</span>
-                        </div>
-                    </div>
-                    <button onclick="alert('VIP Altyapısı Çok Yakında Aktif Olacak!');" class="vip-btn">VIP SİSTEME KATIL</button>
                 </div>
             </div>
             <div>
-                <h2 class="section-title" style="color: #38bdf8; border-bottom: 2px solid rgba(56, 189, 248, 0.3);">📈 Bugünün Canlı Fikstür Listesi</h2>
+                <h2 style="color: #38bdf8;">📈 Bugünün Canlı Fikstür Listesi</h2>
                 {% for t in d.tekli_maclar %}
                 <div class="mac-row">
-                    <div style="max-width: 70%;">
-                        <span style="font-size: 10px; color: #a1a1aa; font-weight: 600; text-transform: uppercase;">{{ t.lig }}</span>
-                        <div style="font-weight: 600; font-size: 13px; margin-top: 3px; color: #f3f4f6; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ t.mac }}</div>
+                    <div style="max-width: 60%;">
+                        <div style="font-size: 12px; font-weight: 600;">{{ t.mac }}</div>
                     </div>
-                    <div style="text-align: right; min-width: 75px;">
+                    <div style="text-align: right;">
                         <span class="badge-tahmin">{{ t.tahmin }}</span>
+                        <div class="win-rate">Win: %{{ t.win_rate }}</div>
                         <div class="oran-text">{{ t.oran }}</div>
                     </div>
                 </div>

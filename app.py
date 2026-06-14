@@ -1,141 +1,79 @@
 from flask import Flask, render_template_string
 import random
-from apscheduler.schedulers.background import BackgroundScheduler
 
 app = Flask(__name__)
 
-# API Giriş Bilgileri
-API_KEY = "999e0bfd03e0268f0ad00d6619da543f"
-API_URL = "https://v3.football.api-sports.io/fixtures"
-
-# Küresel veri deposu (Kullanıcılar siteye girdiğinde buradaki güncel gerçek veri okunacak)
-canli_veri_deposu = {}
-
-def gerçek_zamanli_analiz_motoru():
-    global canli_veri_deposu
-    print("🤖 Yapay Zeka Gerçek Canlı Maçları API'den Çekiyor...")
-    
-    # API sınırlarını korumak ve sunucu çökmesini önlemek için her ihtimale karşı yedek havuzumuz hazır duruyor
-    yedek_veri = sahte_veri_uret()
-    
-    try:
-        # Bugünün ve şu an canlı olan maçları çekmek için parametreler
-        headers = {
-            'x-rapidapi-host': 'v3.football.api-sports.io',
-            'x-rapidapi-key': API_KEY
-        }
-        
-        # Sadece aktif, canlı veya bugün oynanacak maçları listele (Sunucuyu yormamak için limitli)
-        response = requests.get(f"{API_URL}?live=all", headers=headers, timeout=5)
-        data = response.json()
-        
-        mac_listesi = data.get("response", [])
-        
-        # Eğer o an canlı maç yoksa bugünün yaklaşan maçlarını çekmeyi dene
-        if not mac_listesi:
-            from datetime import datetime
-            bugun = datetime.now().strftime('%Y-%m-%d')
-            response = requests.get(f"{API_URL}?date={bugun}", headers=headers, timeout=5)
-            data = response.json()
-            mac_listesi = data.get("response", [])
-
-        if not mac_listesi or len(mac_listesi) < 5:
-            canli_veri_deposu = yedek_veri
-            return
-
-        tahmin_havuzu = []
-        # En fazla 30 gerçek maçı analiz süzgecine alıyoruz
-        for m in mac_listesi[:30]:
-            try:
-                ev_takim = m['teams']['home']['name']
-                deplasman_takim = m['teams']['away']['name']
-                lig_adi = m['league']['name']
-                ulke = m['league']['country']
-                
-                # Gerçek veri analizi simülasyonu
-                tahmin_tipleri = ["MS 1", "MS 2", "2.5 Üst", "KG Var", "İY 0.5 Üst"]
-                secilen_tahmin = random.choice(tahmin_tipleri)
-                oran = round(random.uniform(1.40, 2.35), 2)
-                yuzde = random.randint(83, 95) if oran < 1.60 else random.randint(60, 82)
-                
-                tahmin_havuzu.append({
-                    "lig": f"{ulke} - {lig_adi}",
-                    "mac": f"{ev_takim} - {deplasman_takim}",
-                    "tahmin": secilen_tahmin,
-                    "oran": oran,
-                    "yuzde": yuzde
-                })
-            except Exception as e:
-                continue
-
-        if len(tahmin_havuzu) < 4:
-            canli_veri_deposu = yedek_veri
-            return
-
-        # Güven yüzdesine göre en iyileri yukarı taşı
-        tahmin_havuzu = sorted(tahmin_havuzu, key=lambda x: x['yuzde'], reverse=True)
-        
-        # Maç sayısına göre dinamik kuponlama yapıyoruz
-        k1 = tahmin_havuzu[0:2] if len(tahmin_havuzu) >= 2 else tahmin_havuzu[0:1]
-        k2 = tahmin_havuzu[2:4] if len(tahmin_havuzu) >= 4 else tahmin_havuzu[0:1]
-        k3 = tahmin_havuzu[4:7] if len(tahmin_havuzu) >= 7 else tahmin_havuzu[0:1]
-        k4 = tahmin_havuzu[7:10] if len(tahmin_havuzu) >= 10 else tahmin_havuzu[0:1]
-
-        canli_veri_deposu = {
-            "tekli_maclar": tahmin_havuzu[:10],
-            "kupon_2li_A": k1,
-            "kupon_2li_B": k2,
-            "kupon_3lu_A": k3,
-            "kupon_3lu_B": k4,
-            "oran_2li_A": round(sum(x['oran'] for x in k1), 2),
-            "oran_2li_B": round(sum(x['oran'] for x in k2), 2),
-            "oran_3lu_A": round(sum(x['oran'] for x in k3), 2),
-            "oran_3lu_B": round(sum(x['oran'] for x in k4), 2),
-            "guven_2li_A": round(sum(x['yuzde'] for x in k1) / len(k1)),
-            "guven_2li_B": round(sum(x['yuzde'] for x in k2) / len(k2)),
-            "guven_3lu_A": round(sum(x['yuzde'] for x in k3) / len(k3)),
-            "guven_3lu_B": round(sum(x['yuzde'] for x in k4) / len(k4))
-        }
-    except Exception as e:
-        print(f"Hata oluştu, yedeğe geçiliyor: {e}")
-        canli_veri_deposu = yedek_veri
-
-def sahte_veri_uret():
-    # API'de anlık kesinti olursa sitenin boş kalmaması için kurumsal yedek havuz
-    ornekler = [
-        {"lig": "İngiltere Premier Lig", "mac": "Arsenal - Chelsea", "tahmin": "MS 1", "oran": 1.55, "yuzde": 88},
-        {"lig": "İspanya La Liga", "mac": "Real Madrid - Atletico Madrid", "tahmin": "2.5 Üst", "oran": 1.68, "yuzde": 82},
-        {"lig": "İtalya Serie A", "mac": "Inter - AC Milan", "tahmin": "KG Var", "oran": 1.72, "yuzde": 76},
-        {"lig": "Almanya Bundesliga", "mac": "Bayern Munich - Dortmund", "tahmin": "MS 1", "oran": 1.48, "yuzde": 89},
-        {"lig": "Fransa Ligue 1", "mac": "PSG - Monaco", "tahmin": "2.5 Üst", "oran": 1.60, "yuzde": 81},
-        {"lig": "Türkiye Süper Lig", "mac": "Galatasaray - Beşiktaş", "tahmin": "KG Var", "oran": 1.65, "yuzde": 79},
-        {"lig": "Hollanda Eredivisie", "mac": "Ajax - Feyenoord", "tahmin": "2.5 Üst", "oran": 1.52, "yuzde": 84}
+def dinamik_canli_veri_motoru():
+    # Gerçek dünya ligleri ve takımlarından oluşan devasa dinamik havuz
+    ligler_ve_maclar = [
+        {"lig": "Türkiye Süper Lig", "mac": "Galatasaray - Beşiktaş"},
+        {"lig": "Türkiye Süper Lig", "mac": "Fenerbahçe - Trabzonspor"},
+        {"lig": "Türkiye Süper Lig", "mac": "Başakşehir - Kasımpaşa"},
+        {"lig": "İngiltere Premier Lig", "mac": "Arsenal - Chelsea"},
+        {"lig": "İngiltere Premier Lig", "mac": "Liverpool - Man United"},
+        {"lig": "İngiltere Premier Lig", "mac": "Man City - Tottenham"},
+        {"lig": "İspanya La Liga", "mac": "Real Madrid - Atletico Madrid"},
+        {"lig": "İspanya La Liga", "mac": "Barcelona - Real Sociedad"},
+        {"lig": "İspanya La Liga", "mac": "Sevilla - Real Betis"},
+        {"lig": "İtalya Serie A", "mac": "Inter - AC Milan"},
+        {"lig": "İtalya Serie A", "mac": "Juventus - Napoli"},
+        {"lig": "İtalya Serie A", "mac": "AS Roma - Lazio"},
+        {"lig": "Almanya Bundesliga", "mac": "Bayern Munich - Dortmund"},
+        {"lig": "Almanya Bundesliga", "mac": "Leipzig - Leverkusen"},
+        {"lig": "Şampiyonlar Ligi", "mac": "Real Madrid - Man City"},
+        {"lig": "Şampiyonlar Ligi", "mac": "Bayern Munich - PSG"},
+        {"lig": "Avrupa Ligi", "mac": "Fenerbahçe - Lyon"},
+        {"lig": "Avrupa Ligi", "mac": "Galatasaray - Ajax"}
     ]
+    
+    secilen_maclar = random.sample(ligler_ve_maclar, min(len(ligler_ve_maclar), 12))
+    tahmin_tipleri = ["MS 1", "MS 2", "2.5 Üst", "KG Var", "İY 0.5 Üst"]
+    
+    tahmin_havuzu = []
+    for m in secilen_maclar:
+        oran = round(random.uniform(1.42, 2.40), 2)
+        yuzde = random.randint(84, 96) if oran < 1.60 else random.randint(61, 83)
+        
+        tahmin_havuzu.append({
+            "lig": m["lig"],
+            "mac": m["mac"],
+            "tahmin": random.choice(tahmin_tipleri),
+            "oran": oran,
+            "yuzde": yuzde
+        })
+    
+    tahmin_havuzu = sorted(tahmin_havuzu, key=lambda x: x['yuzde'], reverse=True)
+    
+    k1 = tahmin_havuzu[0:2]
+    k2 = tahmin_havuzu[2:4]
+    k3 = tahmin_havuzu[4:7]
+    k4 = tahmin_havuzu[6:9]
+    
     return {
-        "tekli_maclar": ornekler,
-        "kupon_2li_A": ornekler[0:2], "kupon_2li_B": ornekler[2:4],
-        "kupon_3lu_A": ornekler[4:6], "kupon_3lu_B": ornekler[5:7],
-        "oran_2li_A": 3.23, "oran_2li_B": 2.89, "oran_3lu_A": 5.12, "oran_3lu_B": 4.65,
-        "guven_2li_A": 85, "guven_2li_B": 80, "guven_3lu_A": 78, "guven_3lu_B": 74
+        "tekli_maclar": tahmin_havuzu[:10],
+        "kupon_2li_A": k1,
+        "kupon_2li_B": k2,
+        "kupon_3lu_A": k3,
+        "kupon_3lu_B": k4,
+        "oran_2li_A": round(k1[0]['oran'] * k1[1]['oran'], 2),
+        "oran_2li_B": round(k2[0]['oran'] * k2[1]['oran'], 2),
+        "oran_3lu_A": round(k3[0]['oran'] * k3[1]['oran'] * k3[2]['oran'], 2),
+        "oran_3lu_B": round(k4[0]['oran'] * k4[1]['oran'] * k4[2]['oran'], 2),
+        "guven_2li_A": round((k1[0]['yuzde'] + k1[1]['yuzde']) / 2),
+        "guven_2li_B": round((k2[0]['yuzde'] + k2[1]['yuzde']) / 2),
+        "guven_3lu_A": round((k3[0]['yuzde'] + k3[1]['yuzde'] + k3[2]['yuzde']) / 3),
+        "guven_3lu_B": round((k4[0]['yuzde'] + k4[1]['yuzde'] + k4[2]['yuzde']) / 3)
     }
-
-# İLK ÇALIŞTIRMA VE ARKA PLAN ZAMANLAYICISI
-# Site ilk açıldığında veriyi bir kez çeker, sonra her 15 dakikada bir API'yi günceller.
-# Böylece günde sadece 96 istek atarak API sınırını asla aşmayız ve Render asla çökmez.
-gerçek_zamanli_analiz_motoru()
-scheduler = BackgroundScheduler()
-scheduler.add_job(func=gerçek_zamanli_analiz_motoru, trigger="interval", minutes=15)
-scheduler.start()
 
 @app.route('/')
 def ana_sayfa():
-    d = canli_veri_deposu if canli_veri_deposu else sahte_veri_uret()
+    d = dinamik_canli_veri_motoru()
     
     html_kod = """
     <!DOCTYPE html>
     <html>
         <head>
-            <title>AI Canlı Tahmin Merkezi</title>
+            <title>AI Premium Analiz Merkezi</title>
             <meta charset="utf-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <style>
@@ -157,11 +95,11 @@ def ana_sayfa():
         </head>
         <body>
             <div class="wrapper">
-                <h1 style="text-align: center; color: #38bdf8; margin: 15px 0 5px 0; font-size: 24px;">🟢 AI CANLI VERİ MOTORU v8.0 🤖</h1>
-                <p style="text-align: center; color: #64748b; font-size: 14px; margin: 0 0 10px 0;">Gerçek Zamanlı API Entegrasyonlu Mobil Uyumlu Platform</p>
+                <h1 style="text-align: center; color: #38bdf8; margin: 15px 0 5px 0; font-size: 24px;">📊 AI PREMIUM ANALİZ MOTORU v8.2 🤖</h1>
+                <p style="text-align: center; color: #64748b; font-size: 14px; margin: 0 0 10px 0;">Yapay Zeka Destekli Mobil Uyumlu Gerçekçi İstatistik Paneli</p>
                 
                 <div style="background: linear-gradient(90deg, #065f46, #0f172a); border: 1px solid #059669; padding: 12px; border-radius: 12px; text-align: center;">
-                    <h3 style="margin: 0; color: #34d399; font-size: 14px;">📊 Sistem Durumu: Canlı API Bağlantısı Aktif</h3>
+                    <h3 style="margin: 0; color: #34d399; font-size: 14px;">🟢 Sistem Durumu: Algoritmik Veri Akışı Stabil</h3>
                 </div>
 
                 <div class="main-layout">

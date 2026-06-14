@@ -1,87 +1,77 @@
 from flask import Flask, render_template_string
 import requests
-import random
 from datetime import datetime
 
 app = Flask(__name__)
 
 # API Bilgileri
 API_KEY = "999e0bfd03e0268f0ad00d6619da543f"
-API_URL = "https://v3.football.api-sports.io/fixtures"
+HEADERS = {'x-rapidapi-host': 'v3.football.api-sports.io', 'x-rapidapi-key': API_KEY}
 
-def veri_cek():
-    # Canlı veri çekmeye çalış
+def get_live_matches():
     try:
-        headers = {'x-rapidapi-host': 'v3.football.api-sports.io', 'x-rapidapi-key': API_KEY}
         bugun = datetime.now().strftime('%Y-%m-%d')
-        res = requests.get(f"{API_URL}?date={bugun}", headers=headers, timeout=3)
-        data = res.json().get("response", [])
+        url = f"https://v3.football.api-sports.io/fixtures?date={bugun}"
+        response = requests.get(url, headers=HEADERS, timeout=10)
+        data = response.json().get("response", [])
         
-        if not data: return mock_data() # Veri yoksa örnek veriye dön
-        
-        # Basit bir formatla döndür
-        return {"durum": "canli", "maclar": data[:10]}
+        # Sadece ilk 10 maçı alalım ki liste çok uzamasın
+        return data[:10]
     except:
-        return mock_data() # Hata olursa örnek veriye dön
-
-def mock_data():
-    return {
-        "durum": "arsiv",
-        "maclar": [
-            {"teams": {"home": {"name": "Arsenal"}, "away": {"name": "Chelsea"}}, "league": {"name": "Premier Lig"}},
-            {"teams": {"home": {"name": "Real Madrid"}, "away": {"name": "Barcelona"}}, "league": {"name": "La Liga"}},
-            {"teams": {"home": {"name": "Milan"}, "away": {"name": "Inter"}}, "league": {"name": "Serie A"}}
-        ]
-    }
+        return []
 
 @app.route('/')
 def index():
-    data = veri_cek()
-    
-    html = """<!DOCTYPE html>
-<html lang="tr">
-<head>
-    <meta charset="UTF-8">
-    <title>BETAI // Smart Portal</title>
-    <style>
-        body { background: #030712; color: #fff; font-family: sans-serif; padding: 20px; }
-        .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
-        .tab-btn { padding: 10px 20px; background: #1f2937; border: none; color: #fff; border-radius: 5px; cursor: pointer; }
-        .tab-btn.active { background: #0ea5e9; }
-        .content { display: none; }
-        .content.active { display: block; }
-        .card { background: #111827; padding: 15px; border-radius: 8px; border: 1px solid #374151; margin-bottom: 10px; }
-    </style>
-</head>
-<body>
-    <div class="tabs">
-        <button class="tab-btn active" onclick="show(event, 'bugun')">🔥 Bugün</button>
-        <button class="tab-btn" onclick="show(event, 'arsiv')">📊 Arşiv</button>
-    </div>
+    maclar = get_live_matches()
+    return render_template_string('''
+    <!DOCTYPE html>
+    <html lang="tr">
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+            body { background: #030712; color: #fff; font-family: sans-serif; padding: 15px; }
+            .tabs { display: flex; gap: 5px; margin-bottom: 20px; border-bottom: 1px solid #374151; padding-bottom: 10px; }
+            button { padding: 10px; background: #1f2937; border: none; color: white; border-radius: 5px; cursor: pointer; flex: 1; }
+            .active-btn { background: #0ea5e9 !important; }
+            .tab-pane { display: none; }
+            .active-pane { display: block; }
+            .card { background: #111827; padding: 15px; border-radius: 8px; margin-bottom: 10px; border: 1px solid #374151; }
+        </style>
+    </head>
+    <body>
+        <div class="tabs">
+            <button onclick="openTab(event, 'bugun')" class="active-btn" id="defaultOpen">Bugünün Maçları</button>
+            <button onclick="openTab(event, 'arsiv')">Analizler</button>
+        </div>
 
-    <div id="bugun" class="content active">
-        <h3>Günün Maçları</h3>
-        {% for m in data.maclar %}
-        <div class="card">{{ m.teams.home.name }} vs {{ m.teams.away.name }} - {{ m.league.name }}</div>
-        {% endfor %}
-    </div>
+        <div id="bugun" class="tab-pane active-pane">
+            {% if maclar %}
+                {% for m in maclar %}
+                <div class="card">
+                    <strong>{{ m.teams.home.name }} vs {{ m.teams.away.name }}</strong><br>
+                    <small style="color: #9ca3af;">{{ m.league.name }}</small>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="card">Bugün canlı maç bulunamadı veya API bağlantısı kesik.</div>
+            {% endif %}
+        </div>
 
-    <div id="arsiv" class="content">
-        <h3>Analiz Geçmişi</h3>
-        <div class="card">Geçmiş kupon verileri burada listelenecek.</div>
-    </div>
+        <div id="arsiv" class="tab-pane">
+            <div class="card">Buraya ileride kazanan/kaybeden analizlerini ekleyeceğiz.</div>
+        </div>
 
-    <script>
-        function show(evt, id) {
-            document.querySelectorAll('.content').forEach(c => c.style.display = 'none');
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById(id).style.display = 'block';
-            evt.currentTarget.classList.add('active');
-        }
-    </script>
-</body>
-</html>"""
-    return render_template_string(html, data=data)
+        <script>
+            function openTab(evt, name) {
+                document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active-pane'));
+                document.querySelectorAll('button').forEach(b => b.classList.remove('active-btn'));
+                document.getElementById(name).classList.add('active-pane');
+                evt.currentTarget.classList.add('active-btn');
+            }
+        </script>
+    </body>
+    </html>
+    ''', maclar=maclar)
 
 if __name__ == '__main__':
     app.run(debug=True)
